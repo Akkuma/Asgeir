@@ -33,10 +33,13 @@ class Traits extends nodeio.JobClass
 					$attributes = $traitLineCell.find('p').not(':first');
 					i = -1
 					while ++i isnt 2
-						attribute = $attributes.eq(i).text().trim().split(' ')
+						attribute = $attributes.eq(i).text().trim().replace('\n','\n ')		
+						[value, name, effect...] = attribute.split(' ')
+
 						traitLine.attributes.push
-							name: attribute[1]
-							value: attribute[0].replace('+','')
+							name: name.split('\n')[0]
+							effect: effect.join(' ').replace(/[^\w\s-]/g,'')
+							value: value.replace('+','')
 
 
 				if traitLineIndex <= 2
@@ -52,8 +55,8 @@ class Traits extends nodeio.JobClass
 				if traitLineIndex is numOfTraitsPerLine - 1
 					traitLines.push traitLine if traitLine.name
 
+			#console.log util.inspect traitLines, false, null, true
 			@emit name: profession, traitLines: traitLines 
-			###util.inspect traitLines, false, null, true###
 	output: (profession) ->
 
 @class = Traits
