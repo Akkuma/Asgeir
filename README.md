@@ -38,6 +38,7 @@ Example JSON structure
 Weapon skills currently have a structure like this for Warriors:
 
 In normal JavaScript
+
 	skills = {
 		weapon: {
 			mainhand: {
@@ -67,6 +68,7 @@ In normal JavaScript
 	}
 
 In CoffeeScript
+
 	skills =
 		weapon:
 			mainhand:
