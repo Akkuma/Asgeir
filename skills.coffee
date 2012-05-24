@@ -5,8 +5,8 @@ _s = require 'underscore.string'
 require 'coffee-script'
 require './profession/professions'
 
-class Skillz extends nodeio.JobClass
-	input: professions
+class Skills extends nodeio.JobClass
+	input: ['thief']
 	run: (profession) -> 
 		skillLink = 'http://wiki.guildwars2.com/wiki/List_of_%s_skills'
 		skills = {}
@@ -17,9 +17,9 @@ class Skillz extends nodeio.JobClass
 				
 				if map					
 					file = "./profession/#{profession}/skills/#{v.id.substring 0, v.id.indexOf('-')}.coffee"
-					processor = if path.existsSync file  then require file else {} 
+					parser = if path.existsSync file  then require file else {} 
 					
-					#collection = []
+					collection = {}
 					setBegin = 0
 					setEnd = 0					
 					
@@ -28,8 +28,9 @@ class Skillz extends nodeio.JobClass
 					$headers = $table.find('tr:first-child')			
 					
 					while setEnd < $rows.length
+						skillset = {}
 						$skillCollection  = $rows.eq(setBegin).find('th:first-child')
-						skillCollectionName = $skillCollection.text().trim()
+						skillset.name = $skillCollection.text().trim()
 
 						setEnd = $skillCollection.attr('rowspan') * 1 + setBegin
 						
@@ -39,58 +40,67 @@ class Skillz extends nodeio.JobClass
 						#console.log "Set: #{$set.length}"
 						while subsetEnd < $set.length
 							$skillType = $set.eq(subsetBegin).find('th').not($skillCollection)
-							skillTypeName = $skillType.text().trim()
+							skillset.type = $skillType.text().trim()
 						
 							subsetEnd = $skillType.attr('rowspan') * 1 + subsetBegin
-
+							skillset.rows = $set[subsetBegin...subsetEnd]
 							#console.log "begin: #{subsetBegin} to end #{subsetEnd}"
-							map.parser $, 
-								$set[subsetBegin...subsetEnd], 
-								skillCollectionName, 
-								skillTypeName
-								$headers
-							
+							parser.before skillset if parser.before							
+							subcollection = parse $, skillset, $headers	
+
+							collection[skillset.type] = {} unless collection[skillset.type]
+							collection[skillset.type][skillset.name] = {} unless collection[skillset.type][skillset.name]
+
+							if skillset.subset
+								collection[skillset.type][skillset.name][skillset.subset] = 
+									skills: subcollection
+							else
+								collection[skillset.type][skillset.name].skills = subcollection
 
 							subsetBegin = subsetEnd
 						
 						setBegin = setEnd
 
-					#skills[map.collection] = collection
+					parser.after collection if parser.after
+					console.log util.inspect collection, false, null, true
 
+			
 			@emit skills
 	
 	output: (skills) ->
 		#console.log util.inspect skills, false, null, true
 
-parseWeaponSkills = ($, rows, name, hand, $headers) ->
-	
-	wpn = 
-		type: hand.replace(/\W/gi, '').toLowerCase()
-		name: name
-		skills: []
+parse = ($, skillset, $headers) ->
+	skillset.type = skillset.type.replace(/\W/gi, '').toLowerCase()
 
-	for row, i in rows
+	rechargeName = $headers.find('th').eq(3).text().trim().toLowerCase()
+	skills = []
+
+	for row, i in skillset.rows
 		$row = $(row)
 		$skillData = $row.find('td')
 		skill =
-			skill: $skillData.eq(0).find('a').text().trim()
+			name: $skillData.eq(0).find('a').text().trim()
 			description: $skillData.eq(2).text().trim()
 
-		skill[$headers.find('th').eq(3).text().trim().toLowerCase()] = $skillData.eq(1).text().trim() * 1
+		skill[rechargeName] = $skillData.eq(1).text().trim() * 1 or 0
 
 		isChain = $skillData.eq(0).find("img[alt='Redirect Arrow.png']").length
 		
 		if isChain
-			previousSkill = wpn.skills[wpn.skills.length - 1]
+			previousSkill = skills[skills.length - 1]
 			previousSkill.chain = [] unless previousSkill.chain
 			previousSkill.chain.push skill
 		else if skill
-			wpn.skills.push skill
+			skills.push skill
 
 
-	console.log util.inspect wpn, false, null, true
+	#console.log util.inspect collection, false, null, true
 
-	return wpn
+	return skills
+
+parseWeaponSkills = (collection) ->
+	return collection
 
 parseDownedSkills= () ->
 parseSlotSkills= () ->
@@ -105,7 +115,28 @@ idMapping =
 	'profession-mechanic-skills': parseProfessionMechanicSkills
 	###
 
-@class = Skillz
-@job = new Skillz
+@class = Skills
+@job = new Skills
 			timeout:1200
 			jsdom: true
+
+###
+Generic
+	skills
+		weapon
+			mainhand
+			bothhands
+			offhand
+				[weapon name]
+					*burstSkill
+					*stealthSkill
+					skills
+		slot
+			healing
+			utility
+			elite
+		downed
+		profession
+
+
+		skills.weapon.mainhand.sword.air
