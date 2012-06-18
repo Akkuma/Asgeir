@@ -37,58 +37,58 @@ Example JSON structure
 ----------------------
 Weapon skills currently have a structure like this for Warriors:
 
-In normal JavaScript
-
-	skills = {
-		weapon: {
-			mainhand: {
-				Sword: {
-					skills: [
-						{
-							name: '',
-							description: '',							
-							recharge: 0,
-							chain: [
-								{
-									name: '',
-									description: '',
-									recharge: 0
-								}
-							]
-						}
-					],
-					burstSkill: {
+In JavaScript
+```javascript
+skills = {
+	weapon: {
+		mainhand: {
+			Sword: {
+				skills: [
+					{
 						name: '',
-						description: '',
-						recharge: 10
+						description: '',							
+						recharge: 0,
+						chain: [
+							{
+								name: '',
+								description: '',
+								recharge: 0
+							}
+						]
 					}
+				],
+				burstSkill: {
+					name: '',
+					description: '',
+					recharge: 10
 				}
 			}
 		}
 	}
-
+}
+```
 In CoffeeScript
-
-	skills =
-		weapon:
-			mainhand:
-				Sword:
-					skills: [
-						{
-							name: '',
-							description: ''							
-							recharge: 0
-							chain: [
-								{
-									name: ''
-									description: ''
-									recharge: 0
-								}
-							]
-						}
-					]
-					burstSkill:
-						name: ''
-						description: ''
-						recharge: 10		
-				
+```javascript
+skills =
+	weapon:
+		mainhand:
+			Sword:
+				skills: [
+					{
+						name: '',
+						description: ''							
+						recharge: 0
+						chain: [
+							{
+								name: ''
+								description: ''
+								recharge: 0
+							}
+						]
+					}
+				]
+				burstSkill:
+					name: ''
+					description: ''
+					recharge: 10		
+```
