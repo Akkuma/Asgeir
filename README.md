@@ -12,26 +12,38 @@ I'm working on my own Guild Wars 2 site and saw this as an opportunity to levera
 What does it currently do?
 --------------------------
 - All traits for every profession are pulled down and organized
-	- Minor and Major are typed
+	- Contain type (Minor/Major) and tier (Adept/Master/Grandmaster)
 	- Attributes associated with a trait line are available
 		- Name, such as Compassion
 		- Effect, such as Healing 
 		- Value, the improvement 1 point in a trait rewards (either 1% or 10)
 - All weapon skills for every profession are pulled down and organized
-	- Organized first by how many hands required, bothhands, mainhand, offhand
-	- Name of weapon lives underneath
-	- The weapon contains all skills associated with it ordered by slot
+	- Organized by name of weapon -> weapon "hands" -> skills associated with that hand ordered by slot
 	- A weapon can contain additional sets of skills or properties
 		- Thief and Warriors have their profession mechanic tied to a particular weapon
+			- Organized by name of weapon -> mechanic -> skill
 		- Elementalists have different sets of skills based on their current attunement
+			- Organized by name of weapon -> "hands" -> attunement -> skills
+- All .png images are saved onto disc and organized
+	- /images/[profession]/[imageName].png
+	- Can customize image directory path
+- All superior sigils are pulled down
+	- Organized by type (weapon switch/on crit/etc.)
+	- PvE only sigils are ignored
+- All runes are pulled down and organized
+	- Organized by primary cumulative attribute
 
 What needs to be done?
 ----------------------
-- Wire up output abstraction to allow plug and play with various databases
-- Use the generic parsing built out to get slot, downed, etc. working
+- ~~Wire up output abstraction to allow plug and play with various databases~~
+- ~~Use the generic parsing built out to get slot, downed, etc. working~~
+- Resolve inconsistencies between json structures
 - Evaluate if the current json structure is appropriate
+	- Particularly in context of MongoDB (arrays of objects vs object of objects)
 - Evaluate if the current code needs more refactoring
 - Improve resiliency against wiki changes
+- Provide transformations to the data where applicable
+	- For example, having runes also organized by secondary attribute
 
 Example JSON structure
 ----------------------
@@ -41,8 +53,8 @@ In JavaScript
 ```javascript
 skills = {
 	weapon: {
-		mainhand: {
-			Sword: {
+		Sword: {
+			mainhand: {
 				skills: [
 					{
 						name: '',
@@ -71,8 +83,8 @@ In CoffeeScript
 ```javascript
 skills =
 	weapon:
-		mainhand:
-			Sword:
+		Sword:
+			mainHand:
 				skills: [
 					{
 						name: '',
